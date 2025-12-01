@@ -24,12 +24,6 @@ jobs:
       with:
         dotnet-version: 8.0.x
         
-    - name: Install Playwright browsers
-      run: |
-        cd src/WhatsApp.Client
-        dotnet build
-        pwsh bin/Debug/net8.0/playwright.ps1 install chromium
-        
     - name: Restore dependencies
       run: |
         cd src/WhatsApp.Client
