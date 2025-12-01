@@ -4,7 +4,7 @@
 
 # Publishing WhatsApp.Client to NuGet
 
-This document provides step-by-step instructions for publishing the WhatsApp.Client library to NuGet.org.
+This document provides step-by-step instructions for publishing the WhatsApp.Client library to NuGet.org, both manually and through automated CI/CD.
 
 ## Prerequisites
 
@@ -14,8 +14,70 @@ Before publishing, ensure you have:
 2. **API Key**: Generate an API key from your NuGet.org profile
 3. **.NET 8 SDK**: Installed on your development machine
 4. **Git**: For version control and tagging releases
+5. **GitHub Repository**: With proper secrets configured for automated publishing
 
-## Publishing Steps
+## Automated Publishing (Recommended)
+
+The easiest way to publish is through GitHub Actions automation:
+
+### 1. Setup GitHub Secrets
+
+Add your NuGet API key as a GitHub repository secret:
+
+1. Go to your GitHub repository
+2. Navigate to **Settings > Secrets and variables > Actions**
+3. Click **New repository secret**
+4. Name: `NUGET_API_KEY`
+5. Value: Your NuGet.org API key
+
+### 2. Create a Release
+
+1. **Update version in project file** using [Semantic Versioning](https://semver.org/):
+   ```bash
+   # Edit src/WhatsApp.Client/WhatsApp.Client.csproj
+   <Version>1.0.1</Version>  # MAJOR.MINOR.PATCH format
+   ```
+   
+   **Version Guidelines:**
+   - **1.0.X** → Patch: Bug fixes, security updates
+   - **1.X.0** → Minor: New features, backwards-compatible
+   - **X.0.0** → Major: Breaking changes, API changes
+   - **1.0.0-alpha** → Pre-release versions
+
+2. **Commit and push changes**:
+   ```bash
+   git add .
+   git commit -m "Bump version to 1.0.1"
+   git push origin main
+   ```
+
+3. **Validate everything is ready** (optional but recommended):
+   ```bash
+   ./validate-publish.sh
+   ```
+
+4. **Create and push semantic version tag**:
+   ```bash
+   git tag v1.0.1        # Must exactly match the project version
+   git push origin v1.0.1
+   ```
+   
+   The workflow validates that the tag version matches the project file version exactly.
+
+5. **GitHub Actions will automatically**:
+   - Build the project with .NET 8
+   - Run tests (if available)
+   - Create NuGet package
+   - Publish to NuGet.org
+   - Create GitHub release with artifacts
+
+### 3. Monitor Progress
+
+- Check the **Actions** tab in your GitHub repository
+- View build logs and publishing status
+- Verify the package appears on NuGet.org
+
+## Manual Publishing Steps
 
 ### 1. Prepare for Release
 

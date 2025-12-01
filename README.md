@@ -441,6 +441,64 @@ var serviceProvider = services.BuildServiceProvider();
 var client = serviceProvider.GetService<WhatsAppClient>();
 ```
 
+## CI/CD and Publishing
+
+This project uses GitHub Actions for continuous integration and automated NuGet publishing.
+
+### Automated Builds
+
+Every push to the `main` branch and pull requests trigger:
+- .NET 8 build and compilation
+- Automated testing (when tests are available)
+- NuGet package creation
+- Artifact upload for review
+
+### Automated Publishing to NuGet
+
+Publishing to NuGet.org is triggered automatically when you create a version tag:
+
+1. **Update the version** in `src/WhatsApp.Client/WhatsApp.Client.csproj` using [semantic versioning](https://semver.org/):
+   ```xml
+   <Version>1.0.1</Version>  <!-- MAJOR.MINOR.PATCH -->
+   ```
+   
+   **Semantic Versioning Guidelines:**
+   - **PATCH** (1.0.X): Bug fixes and backwards-compatible changes
+   - **MINOR** (1.X.0): New features that are backwards-compatible
+   - **MAJOR** (X.0.0): Breaking changes that are not backwards-compatible
+   - **Pre-release** (1.0.0-alpha, 1.0.0-beta.1): Development versions
+
+2. **Validate everything is ready** (recommended):
+   ```bash
+   ./validate-publish.sh
+   ```
+
+3. **Create and push a semantic version tag**:
+   ```bash
+   git tag v1.0.1        # Must match project version exactly
+   git push origin v1.0.1
+   ```
+
+4. **GitHub Actions will automatically**:
+   - Build the project
+   - Run tests
+   - Create NuGet package
+   - Publish to NuGet.org (requires `NUGET_API_KEY` secret)
+   - Create a GitHub release with package artifacts
+
+### Required GitHub Secrets
+
+To enable automated NuGet publishing, add this secret to your GitHub repository:
+
+- `NUGET_API_KEY`: Your NuGet.org API key
+  1. Go to [NuGet.org](https://www.nuget.org/account/apikeys)
+  2. Create a new API key with "Push new packages and package versions" scope
+  3. Add it as a repository secret in GitHub Settings > Secrets and variables > Actions
+
+### Manual Publishing
+
+For manual publishing, see the detailed [Publishing Guide](PUBLISHING.md).
+
 ## Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
@@ -464,7 +522,7 @@ This library is not affiliated with, authorized, maintained, sponsored or endors
 
 - [Documentation](https://github.com/your-username/WhatsApp.Client/wiki)
 - [Issue Tracker](https://github.com/your-username/WhatsApp.Client/issues)
-- [Discussions](https://github.com/your-username/WhatsApp.Client/discussions)
+- [Discussions](https://github.com/darthlotu5/WhatsApp.Client/discussions)
 
 ## Acknowledgments
 

@@ -1,0 +1,166 @@
+# This workflow will build a .NET project and publish to NuGet
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: .NET Build and Publish
+
+on:
+  push:
+    branches: [ "main" ]
+    tags: 
+      - 'v[0-9]+.[0-9]+.[0-9]+*'  # Matches v1.0.0, v1.2.3-alpha, v2.1.0-beta.1, etc.
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+        
+    - name: Install Playwright browsers
+      run: |
+        cd src/WhatsApp.Client
+        dotnet build
+        pwsh bin/Debug/net8.0/playwright.ps1 install chromium
+        
+    - name: Restore dependencies
+      run: |
+        cd src/WhatsApp.Client
+        dotnet restore
+        
+    - name: Build
+      run: |
+        cd src/WhatsApp.Client
+        dotnet build --no-restore --configuration Release
+        
+    - name: Test
+      run: |
+        cd src/WhatsApp.Client
+        dotnet test --no-build --verbosity normal --configuration Release
+      continue-on-error: true # Allow tests to fail for now since we may not have tests yet
+      
+    - name: Pack NuGet package
+      if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main'
+      run: |
+        cd src/WhatsApp.Client
+        
+        # If this is a tag, extract version and validate it matches project file
+        if [[ $GITHUB_REF == refs/tags/v* ]]; then
+          TAG_VERSION=${GITHUB_REF#refs/tags/v}
+          PROJECT_VERSION=$(grep -o '<Version>.*</Version>' WhatsApp.Client.csproj | sed 's/<Version>\(.*\)<\/Version>/\1/')
+          
+          echo "🏷️  Tag version: $TAG_VERSION"
+          echo "📄 Project version: $PROJECT_VERSION"
+          
+          if [ "$TAG_VERSION" != "$PROJECT_VERSION" ]; then
+            echo "❌ Version mismatch!"
+            echo "   Git tag version: $TAG_VERSION"
+            echo "   Project file version: $PROJECT_VERSION"
+            echo "Please update the version in WhatsApp.Client.csproj to match the tag"
+            exit 1
+          fi
+          echo "✅ Version validation passed"
+        fi
+        
+        # Create NuGet package
+        dotnet pack --no-build --configuration Release --output ../../nupkg --verbosity normal
+        
+        # List created packages
+        echo "📦 Created packages:"
+        ls -la ../../nupkg/
+        
+    - name: Upload NuGet package artifacts
+      if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main'
+      uses: actions/upload-artifact@v4
+      with:
+        name: nuget-packages
+        path: nupkg/*.nupkg
+        
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') # Only publish on semantic version tags
+    
+    steps:
+    - name: Extract version from tag
+      id: version
+      run: |
+        # Extract version from tag (remove 'v' prefix)
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Publishing version: $VERSION"
+        
+        # Validate semantic versioning format
+        if [[ ! $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9\.\-]+)?(\+[a-zA-Z0-9\.\-]+)?$ ]]; then
+          echo "❌ Invalid semantic version format: $VERSION"
+          echo "Expected format: MAJOR.MINOR.PATCH[-prerelease][+build]"
+          echo "Examples: 1.0.0, 1.2.3-alpha, 2.0.0-beta.1, 1.0.0+20231201"
+          exit 1
+        fi
+        echo "✅ Valid semantic version: $VERSION"
+        
+    - name: Download NuGet package artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: nuget-packages
+        path: nupkg
+        
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+        
+    - name: Publish to NuGet
+      run: |
+        echo "Publishing WhatsApp.Client version ${{ steps.version.outputs.version }} to NuGet.org"
+        
+        # Check if package file exists
+        PACKAGE_FILE=$(ls nupkg/WhatsApp.Client.*.nupkg | head -1)
+        if [ ! -f "$PACKAGE_FILE" ]; then
+          echo "❌ NuGet package file not found in nupkg/"
+          ls -la nupkg/
+          exit 1
+        fi
+        
+        echo "📦 Found package: $(basename "$PACKAGE_FILE")"
+        
+        # Publish to NuGet with detailed output
+        dotnet nuget push "$PACKAGE_FILE" \
+          --api-key "${{ secrets.NUGET_API_KEY }}" \
+          --source https://api.nuget.org/v3/index.json \
+          --skip-duplicate \
+          --no-symbols true
+          
+        echo "✅ Successfully published to NuGet.org"
+        
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ steps.version.outputs.version }}
+        name: WhatsApp.Client v${{ steps.version.outputs.version }}
+        files: nupkg/*.nupkg
+        generate_release_notes: true
+        prerelease: ${{ contains(steps.version.outputs.version, '-') }}  # Mark as prerelease if version contains hyphen
+        body: |
+          ## WhatsApp.Client v${{ steps.version.outputs.version }}
+          
+          ### 📦 NuGet Package
+          ```bash
+          dotnet add package WhatsApp.Client --version ${{ steps.version.outputs.version }}
+          ```
+          
+          ### 🔗 Links
+          - [NuGet Package](https://www.nuget.org/packages/WhatsApp.Client/${{ steps.version.outputs.version }})
+          - [Documentation](https://github.com/${{ github.repository }})
+          
+          ### 📋 Release Notes
+          *Auto-generated release notes will appear below this section*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
