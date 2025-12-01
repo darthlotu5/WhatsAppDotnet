@@ -2,7 +2,7 @@
 
 Thank you for your interest in contributing to WhatsApp.Client! We welcome contributions from the community and are pleased to have you join us.
 
-## 🤝 How to Contribute
+## How to Contribute
 
 ### Reporting Issues
 
@@ -26,7 +26,7 @@ Thank you for your interest in contributing to WhatsApp.Client! We welcome contr
 4. **Update documentation** as needed
 5. **Submit a pull request** with clear description
 
-## 🛠️ Development Setup
+## Development Setup
 
 ### Prerequisites
 
@@ -54,7 +54,7 @@ dotnet build
 dotnet test
 ```
 
-## 📝 Coding Standards
+## Coding Standards
 
 ### C# Style Guidelines
 
@@ -131,7 +131,7 @@ public async Task SendMessageAsync_WithValidChatId_ShouldReturnMessage()
 }
 ```
 
-## 📚 Documentation
+## Documentation
 
 ### XML Comments
 
@@ -192,7 +192,7 @@ Brief description of changes
 3. **Address feedback** and make requested changes
 4. **Final approval** and merge by maintainers
 
-## 🏷️ Issue Labels
+## Issue Labels
 
 We use labels to categorize issues:
 
@@ -203,7 +203,7 @@ We use labels to categorize issues:
 - **help wanted**: Community help needed
 - **question**: Further information requested
 
-## 💡 Tips for Contributors
+## Tips for Contributors
 
 ### Getting Started
 
@@ -261,4 +261,4 @@ This project adheres to a code of conduct. By participating, you are expected to
 
 ---
 
-Thank you for contributing to WhatsApp.Client! Your efforts help make this library better for everyone. 🙏
+Thank you for contributing to WhatsApp.Client! Your efforts help make this library better for everyone.

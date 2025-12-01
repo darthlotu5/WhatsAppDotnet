@@ -28,18 +28,18 @@ if ($Help) {
     exit 0
 }
 
-Write-Host "🚀 WhatsApp.Client NuGet Publishing Script" -ForegroundColor Green
+Write-Host "WhatsApp.Client NuGet Publishing Script" -ForegroundColor Green
 Write-Host "=========================================" -ForegroundColor Green
 
 # Check if we're in the right directory
 if (!(Test-Path "src/WhatsApp.Client/WhatsApp.Client.csproj")) {
-    Write-Error "❌ WhatsApp.Client.csproj not found. Please run this script from the project root directory."
+    Write-Error "WhatsApp.Client.csproj not found. Please run this script from the project root directory."
     exit 1
 }
 
 # Validate API key for publishing
 if (!$DryRun -and [string]::IsNullOrWhiteSpace($ApiKey)) {
-    Write-Error "❌ NuGet API key is required for publishing. Use -ApiKey parameter or -DryRun for testing."
+    Write-Error "NuGet API key is required for publishing. Use -ApiKey parameter or -DryRun for testing."
     exit 1
 }
 
@@ -50,7 +50,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "Clean failed" }
 
     # Restore dependencies
-    Write-Host "📦 Restoring NuGet packages..." -ForegroundColor Yellow
+    Write-Host "Restoring NuGet packages..." -ForegroundColor Yellow
     dotnet restore --verbosity minimal
     if ($LASTEXITCODE -ne 0) { throw "Restore failed" }
 
@@ -67,7 +67,7 @@ try {
     }
 
     # Pack the NuGet package
-    Write-Host "📦 Creating NuGet package..." -ForegroundColor Yellow
+    Write-Host "Creating NuGet package..." -ForegroundColor Yellow
     $packArgs = @(
         "pack"
         "--configuration", $Configuration
@@ -90,10 +90,10 @@ try {
     }
     
     $packageFile = $nupkgFiles[0]
-    Write-Host "✅ Package created: $($packageFile.Name)" -ForegroundColor Green
+    Write-Host "Package created: $($packageFile.Name)" -ForegroundColor Green
 
     # Show package contents
-    Write-Host "📋 Package contents:" -ForegroundColor Cyan
+    Write-Host "Package contents:" -ForegroundColor Cyan
     dotnet nuget list package $packageFile.FullName
 
     if ($DryRun) {
@@ -102,17 +102,17 @@ try {
         Write-Host "   To publish, run without -DryRun and provide -ApiKey"
     } else {
         # Publish to NuGet
-        Write-Host "🚀 Publishing to NuGet.org..." -ForegroundColor Yellow
+        Write-Host "Publishing to NuGet.org..." -ForegroundColor Yellow
         dotnet nuget push $packageFile.FullName --api-key $ApiKey --source https://api.nuget.org/v3/index.json --verbosity minimal
         if ($LASTEXITCODE -ne 0) { throw "Publish failed" }
         
-        Write-Host "🎉 Successfully published to NuGet.org!" -ForegroundColor Green
+        Write-Host "Successfully published to NuGet.org!" -ForegroundColor Green
         Write-Host "   Package: $($packageFile.Name)"
         Write-Host "   It may take a few minutes to appear in search results."
     }
 
 } catch {
-    Write-Error "❌ Error: $_"
+    Write-Error "Error: $_"
     exit 1
 }
 

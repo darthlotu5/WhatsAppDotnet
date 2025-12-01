@@ -2,7 +2,7 @@
 
 This document provides step-by-step instructions for publishing the WhatsApp.Client library to NuGet.org.
 
-## 📋 Prerequisites
+## Prerequisites
 
 Before publishing, ensure you have:
 
@@ -11,7 +11,7 @@ Before publishing, ensure you have:
 3. **.NET 8 SDK**: Installed on your development machine
 4. **Git**: For version control and tagging releases
 
-## 🚀 Publishing Steps
+## Publishing Steps
 
 ### 1. Prepare for Release
 
@@ -101,7 +101,7 @@ This will:
    dotnet add package WhatsApp.Client --version 1.0.1
    ```
 
-## 🔧 Script Options
+## Script Options
 
 ### macOS/Linux Script (`publish-nuget.sh`)
 
@@ -168,7 +168,7 @@ jobs:
       run: ./publish-nuget.sh --api-key ${{ secrets.NUGET_API_KEY }}
 ```
 
-## 📦 Package Information
+## Package Information
 
 The generated package includes:
 
@@ -226,7 +226,7 @@ dotnet build --verbosity detailed
 3. **Write blog posts** about features and usage
 4. **Create video tutorials** for complex scenarios
 
-## 📚 Additional Resources
+## Additional Resources
 
 - [NuGet Documentation](https://docs.microsoft.com/en-us/nuget/)
 - [Creating NuGet Packages](https://docs.microsoft.com/en-us/nuget/create-packages/)
@@ -235,4 +235,4 @@ dotnet build --verbosity detailed
 
 ---
 
-**Happy publishing! 🎉** Remember to test thoroughly before each release and follow semantic versioning principles.
+**Happy publishing!** Remember to test thoroughly before each release and follow semantic versioning principles.
