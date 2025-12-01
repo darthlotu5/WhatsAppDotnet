@@ -1,0 +1,67 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    
+    <!-- Package Information -->
+    <PackageId>WhatsAppDotnet</PackageId>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    
+    <!-- Authoring Information -->
+    <Authors>WhatsAppDotnet Contributors</Authors>
+    <Company>WhatsAppDotnet</Company>
+    <Product>WhatsAppDotnet</Product>
+    <Copyright>Copyright © 2025 WhatsAppDotnet Contributors</Copyright>
+    
+    <!-- Package Description -->
+    <Title>WhatsApp .NET Client Library</Title>
+    <Description>A comprehensive .NET library for interacting with the WhatsApp Web API using browser automation. Port of the popular wajs JavaScript library to C# with modern .NET patterns, strong typing, and async/await support.</Description>
+    <PackageTags>whatsapp;whatsapp-web;api;bot;client;dotnet;playwright;automation;messaging;chat</PackageTags>
+    <PackageProjectUrl>https://github.com/your-username/WhatsAppDotnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/your-username/WhatsAppDotnet</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    
+    <!-- Licensing -->
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    
+    <!-- Documentation -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    
+    <!-- Package Release Notes -->
+    <PackageReleaseNotes>
+      Version 1.0.0:
+      - Initial release of WhatsAppDotnet
+      - Core WhatsApp Web API functionality
+      - Browser automation using Microsoft Playwright
+      - Event-driven architecture with C# events
+      - Strong typing and modern async/await patterns
+      - Support for messages, contacts, and chats
+      - Session persistence and QR code authentication
+      - Comprehensive logging and error handling
+    </PackageReleaseNotes>
+    
+    <!-- Build Configuration -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+    <NoWarn>CS1591</NoWarn> <!-- Missing XML comment warnings -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Playwright" Version="1.40.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="FFMpegCore" Version="5.0.2" />
+  </ItemGroup>
+
+</Project>
