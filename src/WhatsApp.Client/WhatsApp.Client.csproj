@@ -8,9 +8,9 @@
     
     <!-- Package Information -->
     <PackageId>WhatsApp.Client</PackageId>
-    <Version>1.0.2</Version>
-    <AssemblyVersion>1.0.2.0</AssemblyVersion>
-    <FileVersion>1.0.2.0</FileVersion>
+    <Version>1.0.3</Version>
+    <AssemblyVersion>1.0.3.0</AssemblyVersion>
+    <FileVersion>1.0.3.0</FileVersion>
     
     <!-- Authoring Information -->
     <Authors>WhatsApp.Client Contributors</Authors>
@@ -52,6 +52,7 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <NoWarn>CS1591</NoWarn> <!-- Missing XML comment warnings -->
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -64,4 +65,7 @@
     <PackageReference Include="FFMpegCore" Version="5.0.2" />
   </ItemGroup>
 
+    <ItemGroup>
+        <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
 </Project>
