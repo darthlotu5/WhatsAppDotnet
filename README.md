@@ -458,9 +458,9 @@ This library is not affiliated with, authorized, maintained, sponsored or endors
 
 ## Support
 
-- 📚 [Documentation](https://github.com/your-username/WhatsApp.Client/wiki)
-- 🐛 [Issue Tracker](https://github.com/your-username/WhatsApp.Client/issues)
-- 💬 [Discussions](https://github.com/your-username/WhatsApp.Client/discussions)
+- [Documentation](https://github.com/your-username/WhatsApp.Client/wiki)
+- [Issue Tracker](https://github.com/your-username/WhatsApp.Client/issues)
+- [Discussions](https://github.com/your-username/WhatsApp.Client/discussions)
 
 ## Acknowledgments
 
