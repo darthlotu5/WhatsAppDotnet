@@ -8,9 +8,9 @@
     
     <!-- Package Information -->
     <PackageId>WhatsApp.Client</PackageId>
-    <Version>1.0.6</Version>
-    <AssemblyVersion>1.0.6.0</AssemblyVersion>
-    <FileVersion>1.0.6.0</FileVersion>
+    <Version>1.0.7</Version>
+    <AssemblyVersion>1.0.7.0</AssemblyVersion>
+    <FileVersion>1.0.7.0</FileVersion>
     
     <!-- Authoring Information -->
     <Authors>WhatsApp.Client Contributors</Authors>
@@ -19,9 +19,9 @@
     <Copyright>Copyright © 2025 WhatsApp.Client Contributors</Copyright>
     
     <!-- Package Description -->
-    <Title>WhatsApp .NET Client Library</Title>
-    <Description>A comprehensive .NET library for interacting with the WhatsApp Web API using browser automation. Port of the popular wajs JavaScript library to C# with modern .NET patterns, strong typing, and async/await support.</Description>
-    <PackageTags>whatsapp;whatsapp-web;api;bot;client;dotnet;playwright;automation;messaging;chat</PackageTags>
+    <Title>WhatsApp .NET Client Library - Web Automation</Title>
+    <Description>A comprehensive .NET library for interacting with WhatsApp Web using browser automation. Alternative to WhatsApp Business API with full WhatsApp Web functionality. Port of the popular wajs JavaScript library to C# with modern .NET patterns, strong typing, and async/await support. Perfect for WhatsApp bots, automation, and integration.</Description>
+    <PackageTags>whatsapp;whatsapp-web;whatsapp-api;whatsapp-net;whatsapp-sdk;whatsapp-dotnet;whatsapp-csharp;whatsapp-bot;whatsapp-client;whatsapp-automation;whatsapp-library;whatsapp-wrapper;whatsapp-integration;whatsapp-business;api;bot;client;dotnet;csharp;net8;net-core;playwright;automation;messaging;chat;communication;web-automation;browser-automation;social-media;instant-messaging;chatbot;message-api;web-scraping;selenium-alternative;puppeteer-alternative;cross-platform;async;event-driven;real-time;session-management;qr-authentication;qr-code;media-support;wajs;whatsapp-web-js;business-messaging;customer-support;notification-system;marketing-automation;lead-generation</PackageTags>
     <PackageProjectUrl>https://github.com/darthlotu5/WhatsAppDotnet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/darthlotu5/WhatsAppDotnet</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
