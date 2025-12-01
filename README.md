@@ -1,13 +1,13 @@
-# WhatsAppDotnet 🚀
+# WhatsApp.Client
 
-[![NuGet Version](https://img.shields.io/nuget/v/WhatsAppDotnet.svg)](https://www.nuget.org/packages/WhatsAppDotnet/)
-[![NuGet Downloads](https://img.shields.io/nuget/dt/WhatsAppDotnet.svg)](https://www.nuget.org/packages/WhatsAppDotnet/)
+[![NuGet Version](https://img.shields.io/nuget/v/WhatsApp.Client.svg)](https://www.nuget.org/packages/WhatsApp.Client/)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/WhatsApp.Client.svg)](https://www.nuget.org/packages/WhatsApp.Client/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/)
 
 A comprehensive C# .NET library for interacting with the WhatsApp Web API using browser automation. This library is a port of the popular JavaScript WhatsApp library (wajs) to .NET, providing developers with a powerful and type-safe way to build WhatsApp bots and automation tools.
 
-## 🚀 Features
+## Features
 
 - **Browser Automation**: Uses Microsoft Playwright for reliable WhatsApp Web interaction
 - **Event-Driven Architecture**: Real-time events for messages, authentication, and state changes
@@ -20,29 +20,29 @@ A comprehensive C# .NET library for interacting with the WhatsApp Web API using 
 - **Contact Management**: Access and manage WhatsApp contacts
 - **Message Operations**: Send, reply, forward, delete, and star messages
 
-## 📋 Prerequisites
+## Prerequisites
 
 - .NET 8.0 or later
 - One of the supported browsers (Chromium, Firefox, or WebKit) - automatically installed via Playwright
 
-## 📦 Installation
+## Installation
 
 ### NuGet Package Manager
 ```bash
-Install-Package WhatsAppDotnet
+Install-Package WhatsApp.Client
 ```
 
 ### .NET CLI
 ```bash
-dotnet add package WhatsAppDotnet
+dotnet add package WhatsApp.Client
 ```
 
 ### PackageReference
 ```xml
-<PackageReference Include="WhatsAppDotnet" Version="1.0.0" />
+<PackageReference Include="WhatsApp.Client" Version="1.0.0" />
 ```
 
-## 🛠️ Quick Start
+## Quick Start
 
 ### Basic Usage
 
@@ -50,8 +50,8 @@ dotnet add package WhatsAppDotnet
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using WhatsAppDotnet;
-using WhatsAppDotnet.Utilities;
+using WhatsApp.Client;
+using WhatsApp.Client.Utilities;
 
 // Create and configure the WhatsApp client
 var options = new WhatsAppClientOptions
@@ -75,7 +75,7 @@ client.Ready += async (sender, e) =>
     Console.WriteLine("WhatsApp client is ready!");
     
     // Send a message
-    await client.SendMessageAsync("1234567890@c.us", "Hello from WhatsAppDotnet!");
+    await client.SendMessageAsync("1234567890@c.us", "Hello from WhatsApp.Client!");
 };
 
 client.MessageReceived += (sender, e) => 
@@ -114,7 +114,7 @@ var host = Host.CreateDefaultBuilder(args)
 await host.RunAsync();
 ```
 
-## 📚 Core Concepts
+## Core Concepts
 
 ### Client Initialization
 
@@ -252,7 +252,7 @@ await contact.BlockAsync();
 await contact.UnblockAsync();
 ```
 
-## ⚙️ Configuration Options
+## Configuration Options
 
 ### WhatsAppClientOptions
 
@@ -282,7 +282,7 @@ PlaywrightOptions = new()
 }
 ```
 
-## 🎯 Advanced Usage
+## Advanced Usage
 
 ### Custom Message Handler
 
@@ -325,7 +325,7 @@ public class MessageHandler
         switch (command)
         {
             case "/ping":
-                await message.ReplyAsync("Pong! 🏓");
+                await message.ReplyAsync("Pong!");
                 break;
                 
             case "/time":
@@ -333,7 +333,7 @@ public class MessageHandler
                 break;
                 
             case "/joke":
-                await message.ReplyAsync("Why don't scientists trust atoms? Because they make up everything! 😄");
+                await message.ReplyAsync("Why don't scientists trust atoms? Because they make up everything!");
                 break;
                 
             default:
@@ -393,7 +393,7 @@ var options = new WhatsAppClientOptions
 // No need to scan QR code again after first authentication
 ```
 
-## 🔧 Error Handling
+## Error Handling
 
 ```csharp
 try
@@ -419,9 +419,9 @@ finally
 }
 ```
 
-## 📝 Logging
+## Logging
 
-WhatsAppDotnet uses Microsoft.Extensions.Logging:
+WhatsApp.Client uses Microsoft.Extensions.Logging:
 
 ```csharp
 var services = new ServiceCollection()
@@ -437,7 +437,7 @@ var serviceProvider = services.BuildServiceProvider();
 var client = serviceProvider.GetService<WhatsAppClient>();
 ```
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
@@ -448,21 +448,21 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 5. Push to the branch: `git push origin feature/new-feature`
 6. Submit a pull request
 
-## 📄 License
+## License
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
-## ⚠️ Disclaimer
+## Disclaimer
 
 This library is not affiliated with, authorized, maintained, sponsored or endorsed by WhatsApp or any of its affiliates or subsidiaries. This is an independent and unofficial library. Use at your own risk.
 
-## 🆘 Support
+## Support
 
-- 📚 [Documentation](https://github.com/your-username/WhatsAppDotnet/wiki)
-- 🐛 [Issue Tracker](https://github.com/your-username/WhatsAppDotnet/issues)
-- 💬 [Discussions](https://github.com/your-username/WhatsAppDotnet/discussions)
+- 📚 [Documentation](https://github.com/your-username/WhatsApp.Client/wiki)
+- 🐛 [Issue Tracker](https://github.com/your-username/WhatsApp.Client/issues)
+- 💬 [Discussions](https://github.com/your-username/WhatsApp.Client/discussions)
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Original [whatsapp-web.js](https://github.com/pedroslopez/whatsapp-web.js) library
 - [wajs](https://github.com/DikaArdnt/wajs) JavaScript library that inspired this port

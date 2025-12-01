@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# WhatsAppDotnet NuGet Publishing Script for macOS/Linux
+# WhatsApp.Client NuGet Publishing Script for macOS/Linux
 
 # Colors for output
 RED='\033[0;31m'
@@ -17,7 +17,7 @@ VERSION=""
 
 # Function to print usage
 show_help() {
-    echo -e "${GREEN}WhatsAppDotnet NuGet Publishing Script${NC}"
+    echo -e "${GREEN}WhatsApp.Client NuGet Publishing Script${NC}"
     echo ""
     echo "Usage: ./publish-nuget.sh [options]"
     echo ""
@@ -65,12 +65,12 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-echo -e "${GREEN}🚀 WhatsAppDotnet NuGet Publishing Script${NC}"
+echo -e "${GREEN}🚀 WhatsApp.Client NuGet Publishing Script${NC}"
 echo -e "${GREEN}=========================================${NC}"
 
 # Check if we're in the right directory
-if [[ ! -f "WhatsAppDotnet.csproj" ]]; then
-    echo -e "${RED}❌ WhatsAppDotnet.csproj not found. Please run this script from the project root directory.${NC}"
+if [[ ! -f "src/WhatsApp.Client/WhatsApp.Client.csproj" ]]; then
+    echo -e "${RED}❌ WhatsApp.Client.csproj not found. Please run this script from the project root directory.${NC}"
     exit 1
 fi
 

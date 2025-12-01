@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-# WhatsAppDotnet NuGet Publishing Script
+# WhatsApp.Client NuGet Publishing Script
 
 param(
     [string]$ApiKey = "",
@@ -10,7 +10,7 @@ param(
 )
 
 if ($Help) {
-    Write-Host "WhatsAppDotnet NuGet Publishing Script" -ForegroundColor Green
+    Write-Host "WhatsApp.Client NuGet Publishing Script" -ForegroundColor Green
     Write-Host ""
     Write-Host "Usage: ./publish-nuget.ps1 [options]"
     Write-Host ""
@@ -28,12 +28,12 @@ if ($Help) {
     exit 0
 }
 
-Write-Host "🚀 WhatsAppDotnet NuGet Publishing Script" -ForegroundColor Green
+Write-Host "🚀 WhatsApp.Client NuGet Publishing Script" -ForegroundColor Green
 Write-Host "=========================================" -ForegroundColor Green
 
 # Check if we're in the right directory
-if (!(Test-Path "WhatsAppDotnet.csproj")) {
-    Write-Error "❌ WhatsAppDotnet.csproj not found. Please run this script from the project root directory."
+if (!(Test-Path "src/WhatsApp.Client/WhatsApp.Client.csproj")) {
+    Write-Error "❌ WhatsApp.Client.csproj not found. Please run this script from the project root directory."
     exit 1
 }
 

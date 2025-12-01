@@ -1,6 +1,6 @@
-# Contributing to WhatsAppDotnet
+# Contributing to WhatsApp.Client
 
-Thank you for your interest in contributing to WhatsAppDotnet! We welcome contributions from the community and are pleased to have you join us.
+Thank you for your interest in contributing to WhatsApp.Client! We welcome contributions from the community and are pleased to have you join us.
 
 ## 🤝 How to Contribute
 
@@ -38,11 +38,11 @@ Thank you for your interest in contributing to WhatsAppDotnet! We welcome contri
 
 ```bash
 # Clone your fork
-git clone https://github.com/your-username/WhatsAppDotnet.git
-cd WhatsAppDotnet
+git clone https://github.com/your-username/WhatsApp.Client.git
+cd WhatsApp.Client
 
 # Add upstream remote
-git remote add upstream https://github.com/original-owner/WhatsAppDotnet.git
+git remote add upstream https://github.com/original-owner/WhatsApp.Client.git
 
 # Install dependencies
 dotnet restore
@@ -261,4 +261,4 @@ This project adheres to a code of conduct. By participating, you are expected to
 
 ---
 
-Thank you for contributing to WhatsAppDotnet! Your efforts help make this library better for everyone. 🙏
+Thank you for contributing to WhatsApp.Client! Your efforts help make this library better for everyone. 🙏

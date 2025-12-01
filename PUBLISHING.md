@@ -1,6 +1,6 @@
-# Publishing WhatsAppDotnet to NuGet
+# Publishing WhatsApp.Client to NuGet
 
-This document provides step-by-step instructions for publishing the WhatsAppDotnet library to NuGet.org.
+This document provides step-by-step instructions for publishing the WhatsApp.Client library to NuGet.org.
 
 ## 📋 Prerequisites
 
@@ -16,7 +16,7 @@ Before publishing, ensure you have:
 ### 1. Prepare for Release
 
 #### Update Version Number
-Edit `WhatsAppDotnet.csproj` and update the version:
+Edit `WhatsApp.Client.csproj` and update the version:
 ```xml
 <Version>1.0.1</Version>
 <AssemblyVersion>1.0.1.0</AssemblyVersion>
@@ -88,17 +88,17 @@ This will:
 
 2. **Publish:**
    ```bash
-   dotnet nuget push ./nupkg/WhatsAppDotnet.*.nupkg \
+   dotnet nuget push ./nupkg/WhatsApp.Client.*.nupkg \
      --api-key YOUR_NUGET_API_KEY \
      --source https://api.nuget.org/v3/index.json
    ```
 
 ### 4. Verify Publication
 
-1. **Check NuGet.org**: Visit [nuget.org/packages/WhatsAppDotnet](https://www.nuget.org/packages/WhatsAppDotnet)
+1. **Check NuGet.org**: Visit [nuget.org/packages/WhatsApp.Client](https://www.nuget.org/packages/WhatsApp.Client)
 2. **Test Installation**: Try installing in a test project:
    ```bash
-   dotnet add package WhatsAppDotnet --version 1.0.1
+   dotnet add package WhatsApp.Client --version 1.0.1
    ```
 
 ## 🔧 Script Options
@@ -172,8 +172,8 @@ jobs:
 
 The generated package includes:
 
-- **Library DLL**: `WhatsAppDotnet.dll`
-- **XML Documentation**: `WhatsAppDotnet.xml`
+- **Library DLL**: `WhatsApp.Client.dll`
+- **XML Documentation**: `WhatsApp.Client.xml`
 - **Dependencies**: Automatically resolved
 - **Metadata**: Version, description, license, etc.
 
@@ -201,10 +201,10 @@ The generated package includes:
 
 ```bash
 # Check package contents
-dotnet nuget list package ./nupkg/WhatsAppDotnet.*.nupkg
+dotnet nuget list package ./nupkg/WhatsApp.Client.*.nupkg
 
 # Validate package
-dotnet nuget verify ./nupkg/WhatsAppDotnet.*.nupkg
+dotnet nuget verify ./nupkg/WhatsApp.Client.*.nupkg
 
 # Check build output
 dotnet build --verbosity detailed

@@ -7,23 +7,23 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     
     <!-- Package Information -->
-    <PackageId>WhatsAppDotnet</PackageId>
+    <PackageId>WhatsApp.Client</PackageId>
     <Version>1.0.0</Version>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     
     <!-- Authoring Information -->
-    <Authors>WhatsAppDotnet Contributors</Authors>
-    <Company>WhatsAppDotnet</Company>
-    <Product>WhatsAppDotnet</Product>
-    <Copyright>Copyright © 2025 WhatsAppDotnet Contributors</Copyright>
+    <Authors>WhatsApp.Client Contributors</Authors>
+    <Company>WhatsApp.Client</Company>
+    <Product>WhatsApp.Client</Product>
+    <Copyright>Copyright © 2025 WhatsApp.Client Contributors</Copyright>
     
     <!-- Package Description -->
     <Title>WhatsApp .NET Client Library</Title>
     <Description>A comprehensive .NET library for interacting with the WhatsApp Web API using browser automation. Port of the popular wajs JavaScript library to C# with modern .NET patterns, strong typing, and async/await support.</Description>
     <PackageTags>whatsapp;whatsapp-web;api;bot;client;dotnet;playwright;automation;messaging;chat</PackageTags>
-    <PackageProjectUrl>https://github.com/your-username/WhatsAppDotnet</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/your-username/WhatsAppDotnet</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/your-username/WhatsApp.Client</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/your-username/WhatsApp.Client</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     
     <!-- Licensing -->
@@ -37,7 +37,7 @@
     <!-- Package Release Notes -->
     <PackageReleaseNotes>
       Version 1.0.0:
-      - Initial release of WhatsAppDotnet
+      - Initial release of WhatsApp.Client
       - Core WhatsApp Web API functionality
       - Browser automation using Microsoft Playwright
       - Event-driven architecture with C# events
