@@ -8,9 +8,9 @@
     
     <!-- Package Information -->
     <PackageId>WhatsApp.Client</PackageId>
-    <Version>1.0.3</Version>
-    <AssemblyVersion>1.0.3.0</AssemblyVersion>
-    <FileVersion>1.0.3.0</FileVersion>
+    <Version>1.0.4</Version>
+    <AssemblyVersion>1.0.4.0</AssemblyVersion>
+    <FileVersion>1.0.4.0</FileVersion>
     
     <!-- Authoring Information -->
     <Authors>WhatsApp.Client Contributors</Authors>
@@ -22,8 +22,8 @@
     <Title>WhatsApp .NET Client Library</Title>
     <Description>A comprehensive .NET library for interacting with the WhatsApp Web API using browser automation. Port of the popular wajs JavaScript library to C# with modern .NET patterns, strong typing, and async/await support.</Description>
     <PackageTags>whatsapp;whatsapp-web;api;bot;client;dotnet;playwright;automation;messaging;chat</PackageTags>
-    <PackageProjectUrl>https://github.com/your-username/WhatsApp.Client</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/your-username/WhatsApp.Client</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/darthlotu5/WhatsAppDotnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/darthlotu5/WhatsAppDotnet</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     
     <!-- Licensing -->
