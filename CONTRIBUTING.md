@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="assets/logo.png" alt="WhatsApp.Client Logo" width="120" height="120">
+</div>
+
 # Contributing to WhatsApp.Client
 
 Thank you for your interest in contributing to WhatsApp.Client! We welcome contributions from the community and are pleased to have you join us.

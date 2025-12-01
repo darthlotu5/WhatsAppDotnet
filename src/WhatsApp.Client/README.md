@@ -1,9 +1,13 @@
-# WhatsApp.Client
+<div align="center">
+  <img src="../../assets/logo.png" alt="WhatsApp.Client Logo" width="150" height="150">
+  
+  # WhatsApp.Client
 
-[![NuGet Version](https://img.shields.io/nuget/v/WhatsApp.Client.svg)](https://www.nuget.org/packages/WhatsApp.Client/)
-[![NuGet Downloads](https://img.shields.io/nuget/dt/WhatsApp.Client.svg)](https://www.nuget.org/packages/WhatsApp.Client/)
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](../../LICENSE)
-[![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/)
+  [![NuGet Version](https://img.shields.io/nuget/v/WhatsApp.Client.svg)](https://www.nuget.org/packages/WhatsApp.Client/)
+  [![NuGet Downloads](https://img.shields.io/nuget/dt/WhatsApp.Client.svg)](https://www.nuget.org/packages/WhatsApp.Client/)
+  [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](../../LICENSE)
+  [![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/)
+</div>
 
 A comprehensive C# .NET library for interacting with the WhatsApp Web API using browser automation. This library is a port of the popular JavaScript WhatsApp library (wajs) to .NET, providing developers with a powerful and type-safe way to build WhatsApp bots and automation tools.
 

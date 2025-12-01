@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="assets/logo.png" alt="WhatsApp.Client Logo" width="120" height="120">
+</div>
+
 # Publishing WhatsApp.Client to NuGet
 
 This document provides step-by-step instructions for publishing the WhatsApp.Client library to NuGet.org.
