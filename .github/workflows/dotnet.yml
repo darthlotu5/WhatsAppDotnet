@@ -11,6 +11,10 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -134,6 +138,15 @@ jobs:
           
         echo "✅ Successfully published to NuGet.org"
         
+    - name: Debug GitHub Token Permissions
+      run: |
+        echo "Checking GitHub API access..."
+        curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+             -H "Accept: application/vnd.github.v3+json" \
+             "https://api.github.com/repos/${{ github.repository }}" | \
+             jq -r '.permissions // "No permissions info available"'
+      continue-on-error: true
+
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
