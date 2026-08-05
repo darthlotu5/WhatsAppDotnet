@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using WhatsAppDotnet;
 using WhatsAppDotnet.Events;
+using WhatsAppDotnet.Structures;
 using WhatsAppDotnet.Utilities;
 
 namespace WhatsAppDotnet.Examples;
@@ -67,6 +68,18 @@ public class SimpleExample
                 else if (key.KeyChar == 'c' || key.KeyChar == 'C')
                 {
                     await ShowChats(client);
+                }
+                else if (key.KeyChar == 'b' || key.KeyChar == 'B')
+                {
+                    await SendButtonsTest(client);
+                }
+                else if (key.KeyChar == 'l' || key.KeyChar == 'L')
+                {
+                    await SendListTest(client);
+                }
+                else if (key.KeyChar == 'i' || key.KeyChar == 'I')
+                {
+                    await SendImageTest(client);
                 }
                 else if (key.KeyChar == 'h' || key.KeyChar == 'H')
                 {
@@ -183,6 +196,106 @@ public class SimpleExample
         }
     }
 
+    private static async Task<string?> PromptChatIdAsync()
+    {
+        Console.WriteLine("Enter chat ID (e.g., 1234567890@c.us for individual or 1234567890@g.us for group):");
+        var chatId = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(chatId))
+        {
+            Console.WriteLine("❌ Invalid chat ID");
+            return null;
+        }
+        return chatId;
+    }
+
+    private static async Task SendButtonsTest(WhatsAppClient client)
+    {
+        var chatId = await PromptChatIdAsync();
+        if (chatId == null) return;
+
+        // ⚠️ Buttons are an unofficial, unsupported mechanism (see the
+        // warning on WhatsAppClient.SendButtonsAsync's XML doc comment) —
+        // WPPConnect themselves say they can stop working at any time.
+        try
+        {
+            var message = await client.SendButtonsAsync(
+                chatId,
+                "Choose an option below:",
+                new List<ButtonOption>
+                {
+                    ButtonOption.QuickReply("opt_yes", "Yes"),
+                    ButtonOption.QuickReply("opt_no", "No"),
+                    ButtonOption.Link("https://github.com/darthlotu5/WhatsAppDotnet", "View on GitHub"),
+                },
+                title: "Quick question",
+                footer: "Sent via WhatsAppDotnet");
+
+            Console.WriteLine(message != null ? "✅ Buttons message sent!" : "❌ Failed to send buttons message");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Error sending buttons message: {ex.Message}");
+        }
+    }
+
+    private static async Task SendListTest(WhatsAppClient client)
+    {
+        var chatId = await PromptChatIdAsync();
+        if (chatId == null) return;
+
+        try
+        {
+            var message = await client.SendListAsync(
+                chatId,
+                buttonText: "View options",
+                description: "Pick the option that fits you best",
+                sections: new List<ListSection>
+                {
+                    new ListSection
+                    {
+                        Title = "Plans",
+                        Rows = new List<ListMessageRow>
+                        {
+                            new() { Title = "Basic", Description = "Free tier", RowId = "plan_basic" },
+                            new() { Title = "Pro", Description = "$10/month", RowId = "plan_pro" },
+                        }
+                    }
+                },
+                title: "Choose a plan",
+                footer: "Sent via WhatsAppDotnet");
+
+            Console.WriteLine(message != null ? "✅ List message sent!" : "❌ Failed to send list message");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Error sending list message: {ex.Message}");
+        }
+    }
+
+    private static async Task SendImageTest(WhatsAppClient client)
+    {
+        var chatId = await PromptChatIdAsync();
+        if (chatId == null) return;
+
+        Console.WriteLine("Enter the local path to an image file (jpg/png/webp):");
+        var imagePath = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(imagePath) || !File.Exists(imagePath))
+        {
+            Console.WriteLine("❌ Invalid or missing image file");
+            return;
+        }
+
+        try
+        {
+            var message = await client.SendImageAsync(chatId, imagePath, caption: "Sent via WhatsAppDotnet");
+            Console.WriteLine(message != null ? "✅ Image sent!" : "❌ Failed to send image");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Error sending image: {ex.Message}");
+        }
+    }
+
     private static async Task ShowChats(WhatsAppClient client)
     {
         try
@@ -219,6 +332,9 @@ public class SimpleExample
         Console.WriteLine("======================");
         Console.WriteLine("T - Send a test message");
         Console.WriteLine("C - Show chats");
+        Console.WriteLine("B - Send a buttons message (up to 3 native-flow buttons)");
+        Console.WriteLine("L - Send a list message (sectioned picker)");
+        Console.WriteLine("I - Send an image (with an optional caption + up to 2 buttons)");
         Console.WriteLine("H - Show this help");
         Console.WriteLine("Q - Quit");
         Console.WriteLine("\nPress any key...\n");

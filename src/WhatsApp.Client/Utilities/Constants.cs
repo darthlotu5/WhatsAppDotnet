@@ -24,6 +24,15 @@ public static class Constants
     /// Default FFmpeg path
     /// </summary>
     public const string DefaultFfmpegPath = "ffmpeg";
+
+    /// <summary>
+    /// CDN URL for WPPConnect's wa-js library (WPP), injected into the
+    /// WhatsApp Web page to unlock internal-store-level APIs — including
+    /// sendListMessage/sendTextMessage-with-buttons/sendFileMessage — that
+    /// are not reachable through the public WhatsApp Web UI alone.
+    /// Pin a specific version in production rather than @latest.
+    /// </summary>
+    public const string WaJsScriptUrl = "https://cdn.jsdelivr.net/npm/@wppconnect/wa-js@latest/dist/wppconnect-wa.js";
 }
 
 /// <summary>

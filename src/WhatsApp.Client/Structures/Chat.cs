@@ -90,20 +90,27 @@ public class Chat : Base
     /// <returns>The sent message</returns>
     public virtual async Task<Message?> SendMessageAsync(string content, MessageOptions? options = null)
     {
-        // Implementation would send message through client
-        return null;
+        return await Client.SendMessageAsync(Id, content, options);
     }
 
     /// <summary>
-    /// Sends media to this chat
+    /// Sends media to this chat. Currently only image media is supported —
+    /// video/audio/document support tracks the same gap in
+    /// <see cref="WhatsAppClient"/> and isn't implemented yet.
     /// </summary>
-    /// <param name="media">The media to send</param>
+    /// <param name="media">The media to send (MimeType must start with "image/")</param>
     /// <param name="options">Optional message options</param>
     /// <returns>The sent message</returns>
     public virtual async Task<Message?> SendMediaAsync(MessageMedia media, MessageOptions? options = null)
     {
-        // Implementation would send media through client
-        return null;
+        if (!media.MimeType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new NotSupportedException(
+                $"SendMediaAsync currently only supports images; got mimetype '{media.MimeType}'. " +
+                "Use WhatsAppClient.SendImageBytesAsync directly for other media types once implemented.");
+        }
+
+        return await Client.SendImageBytesAsync(Id, media.Data, media.MimeType, media.Caption);
     }
 
     /// <summary>
