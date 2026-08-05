@@ -13,12 +13,15 @@ namespace WhatsAppDotnet;
 /// </summary>
 public class WhatsAppClient : IDisposable
 {
+    private static readonly HttpClient s_httpClient = new();
+
     private readonly ILogger<WhatsAppClient> _logger;
     private readonly WhatsAppClientOptions _options;
     private IBrowser? _browser;
     private IPage? _page;
     private ClientStatus _status = ClientStatus.Initializing;
     private int _qrRetries = 0;
+    private bool _wppInjected = false;
     private bool _disposed;
 
     #region Events
@@ -128,6 +131,26 @@ public class WhatsAppClient : IDisposable
             // Expose functions for JavaScript callbacks
             await ExposeCallbackFunctionsAsync();
 
+            // Register WPPConnect's wa-js library as an init script BEFORE
+            // navigating. This hooks into WhatsApp Web's internal webpack
+            // modules, unlocking store-level APIs (list messages,
+            // native-flow buttons on text/media messages) that are not
+            // reachable through the public page UI that the rest of this
+            // client automates.
+            //
+            // Order matters: AddInitScriptAsync only applies to page loads
+            // that happen *after* registration, not retroactively — it must
+            // be called before GotoAsync.
+            //
+            // It must also be injected via AddInitScriptAsync (CDP-level,
+            // runs before the page's own scripts) with the script *content*
+            // inlined, not AddScriptTagAsync with a URL: WhatsApp Web's own
+            // Content-Security-Policy (script-src) blocks loading external
+            // scripts entirely — confirmed by testing both approaches
+            // directly against web.whatsapp.com. AddInitScriptAsync bypasses
+            // this because it operates below the page's CSP enforcement.
+            await InjectWppAsync();
+
             // Navigate to WhatsApp Web
             await _page.GotoAsync(Constants.WhatsWebUrl);
 
@@ -228,6 +251,346 @@ public class WhatsAppClient : IDisposable
             _logger.LogError(ex, "Error sending message to chat {ChatId}", chatId);
             return null;
         }
+    }
+
+    /// <summary>
+    /// Sends a text message with up to 3 native-flow buttons attached
+    /// (quick-reply, open-link, call, or copy-code — see
+    /// <see cref="ButtonOption"/>). Requires wa-js (injected automatically
+    /// during <see cref="InitializeAsync"/>).
+    ///
+    /// ⚠️ WPPConnect's own docs are explicit about this: "The buttons are an
+    /// alternative solution we found to make it work. There is no guarantee
+    /// that they will continue functioning, or when they might stop: The
+    /// only certainty is: They will stop, so use them responsibly." This
+    /// works by driving the real WhatsApp Web client's internal store, so it
+    /// tends to be more reliable than raw-protocol libraries (e.g. Baileys/
+    /// whatsmeow), but it is still an unsupported, unofficial mechanism.
+    /// </summary>
+    /// <param name="chatId">The chat ID to send the message to</param>
+    /// <param name="content">The message body text</param>
+    /// <param name="buttons">1 to 3 buttons</param>
+    /// <param name="title">Optional title shown above the message body</param>
+    /// <param name="footer">Optional footer text below the buttons</param>
+    /// <returns>The sent message, or null on failure</returns>
+    public async Task<Message?> SendButtonsAsync(
+        string chatId,
+        string content,
+        List<ButtonOption> buttons,
+        string? title = null,
+        string? footer = null)
+    {
+        if (_page == null || _status != ClientStatus.Ready)
+            throw new InvalidOperationException("Client is not ready");
+        if (buttons == null || buttons.Count == 0 || buttons.Count > 3)
+            throw new ArgumentException("Provide between 1 and 3 buttons", nameof(buttons));
+
+        await WaitForWppReadyAsync();
+
+        _logger.LogDebug("Sending {Count} button(s) to chat {ChatId}", buttons.Count, chatId);
+
+        var buttonPayload = buttons.Select(BuildButtonPayload).ToArray();
+
+        try
+        {
+            var result = await _page.EvaluateAsync<dynamic>(@"
+                async ({ chatId, content, buttonPayload, title, footer }) => {
+                    try {
+                        return await window.WPP.chat.sendTextMessage(chatId, content, {
+                            useInteractiveMessage: true,
+                            buttons: buttonPayload,
+                            title: title || undefined,
+                            footer: footer || undefined
+                        });
+                    } catch (error) {
+                        return { error: error.message };
+                    }
+                }
+            ", new { chatId, content, buttonPayload, title, footer });
+
+            if (result?.error != null)
+            {
+                _logger.LogError("Failed to send buttons message: {Error}", (string)result.error);
+                return null;
+            }
+
+            return new Message(this, result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending buttons message to chat {ChatId}", chatId);
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Sends a single-select list message: a button that opens a sectioned
+    /// picker of rows. Requires wa-js (injected automatically during
+    /// <see cref="InitializeAsync"/>).
+    /// </summary>
+    /// <param name="chatId">The chat ID to send the message to</param>
+    /// <param name="buttonText">Label on the button that opens the list</param>
+    /// <param name="description">Body text shown above the button</param>
+    /// <param name="sections">1 to 10 sections, each with at least one row</param>
+    /// <param name="title">Optional title shown above the description</param>
+    /// <param name="footer">Optional footer text</param>
+    /// <returns>The sent message, or null on failure</returns>
+    public async Task<Message?> SendListAsync(
+        string chatId,
+        string buttonText,
+        string description,
+        List<ListSection> sections,
+        string? title = null,
+        string? footer = null)
+    {
+        if (_page == null || _status != ClientStatus.Ready)
+            throw new InvalidOperationException("Client is not ready");
+        if (sections == null || sections.Count == 0 || sections.Count > 10)
+            throw new ArgumentException("Provide between 1 and 10 sections", nameof(sections));
+        foreach (var section in sections)
+        {
+            if (section.Rows == null || section.Rows.Count == 0)
+                throw new ArgumentException($"Section '{section.Title}' must have at least one row", nameof(sections));
+        }
+
+        await WaitForWppReadyAsync();
+
+        _logger.LogDebug("Sending list message ({Sections} section(s)) to chat {ChatId}", sections.Count, chatId);
+
+        var sectionsPayload = sections.Select(s => new
+        {
+            title = s.Title,
+            rows = s.Rows.Select(r => new { rowId = r.RowId, title = r.Title, description = r.Description }).ToArray()
+        }).ToArray();
+
+        try
+        {
+            var result = await _page.EvaluateAsync<dynamic>(@"
+                async ({ chatId, buttonText, description, sectionsPayload, title, footer }) => {
+                    try {
+                        return await window.WPP.chat.sendListMessage(chatId, {
+                            buttonText,
+                            description,
+                            title: title || undefined,
+                            footer: footer || undefined,
+                            sections: sectionsPayload
+                        });
+                    } catch (error) {
+                        return { error: error.message };
+                    }
+                }
+            ", new { chatId, buttonText, description, sectionsPayload, title, footer });
+
+            if (result?.error != null)
+            {
+                _logger.LogError("Failed to send list message: {Error}", (string)result.error);
+                return null;
+            }
+
+            return new Message(this, result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending list message to chat {ChatId}", chatId);
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Sends an image from a local file path. Thin wrapper over
+    /// <see cref="SendImageBytesAsync"/> — reads the file and infers the
+    /// mime type from its extension.
+    /// </summary>
+    /// <param name="chatId">The chat ID to send the message to</param>
+    /// <param name="imagePath">Local file path to the image (jpg/png/webp)</param>
+    /// <param name="caption">Optional caption</param>
+    /// <param name="buttons">0 to 2 buttons to attach</param>
+    /// <param name="isViewOnce">Send as a view-once image</param>
+    /// <returns>The sent message, or null on failure</returns>
+    public async Task<Message?> SendImageAsync(
+        string chatId,
+        string imagePath,
+        string? caption = null,
+        List<ButtonOption>? buttons = null,
+        bool isViewOnce = false)
+    {
+        if (!File.Exists(imagePath))
+            throw new FileNotFoundException("Image file not found", imagePath);
+
+        var mimeType = Path.GetExtension(imagePath).ToLowerInvariant() switch
+        {
+            ".png" => "image/png",
+            ".webp" => "image/webp",
+            ".gif" => "image/gif",
+            _ => "image/jpeg",
+        };
+        var bytes = await File.ReadAllBytesAsync(imagePath);
+        return await SendImageBytesAsync(chatId, bytes, mimeType, caption, buttons, isViewOnce);
+    }
+
+    /// <summary>
+    /// Sends an image from raw bytes already in memory (e.g. loaded from a
+    /// database, downloaded from another API, or provided by
+    /// <see cref="Structures.Chat.SendMediaAsync"/>), optionally with a
+    /// caption and up to 2 buttons (file-message buttons are capped at 2,
+    /// vs. 3 for plain text — a wa-js/WhatsApp protocol limit, not a
+    /// limitation of this client).
+    /// </summary>
+    /// <param name="chatId">The chat ID to send the message to</param>
+    /// <param name="imageBytes">Raw image bytes</param>
+    /// <param name="mimeType">e.g. "image/jpeg", "image/png"</param>
+    /// <param name="caption">Optional caption</param>
+    /// <param name="buttons">0 to 2 buttons to attach</param>
+    /// <param name="isViewOnce">Send as a view-once image</param>
+    /// <returns>The sent message, or null on failure</returns>
+    public async Task<Message?> SendImageBytesAsync(
+        string chatId,
+        byte[] imageBytes,
+        string mimeType,
+        string? caption = null,
+        List<ButtonOption>? buttons = null,
+        bool isViewOnce = false)
+    {
+        if (_page == null || _status != ClientStatus.Ready)
+            throw new InvalidOperationException("Client is not ready");
+        if (buttons != null && buttons.Count > 2)
+            throw new ArgumentException("File messages support at most 2 buttons", nameof(buttons));
+
+        await WaitForWppReadyAsync();
+
+        var base64 = Convert.ToBase64String(imageBytes);
+        var dataUri = $"data:{mimeType};base64,{base64}";
+        var buttonPayload = buttons?.Select(BuildButtonPayload).ToArray();
+
+        _logger.LogDebug("Sending image ({Size} bytes) to chat {ChatId}", imageBytes.Length, chatId);
+
+        try
+        {
+            var result = await _page.EvaluateAsync<dynamic>(@"
+                async ({ chatId, dataUri, caption, isViewOnce, buttonPayload }) => {
+                    try {
+                        const options = {
+                            type: 'image',
+                            caption: caption || undefined,
+                            isViewOnce
+                        };
+                        if (buttonPayload && buttonPayload.length > 0) {
+                            options.buttons = buttonPayload;
+                        }
+                        return await window.WPP.chat.sendFileMessage(chatId, dataUri, options);
+                    } catch (error) {
+                        return { error: error.message };
+                    }
+                }
+            ", new { chatId, dataUri, caption, isViewOnce, buttonPayload });
+
+            if (result?.error != null)
+            {
+                _logger.LogError("Failed to send image: {Error}", (string)result.error);
+                return null;
+            }
+
+            return new Message(this, result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending image to chat {ChatId}", chatId);
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Converts a <see cref="ButtonOption"/> into the exact shape wa-js's
+    /// prepareMessageButtons expects: {id,text} | {url,text} |
+    /// {phoneNumber,text} | {code,text}.
+    /// </summary>
+    private static object BuildButtonPayload(ButtonOption button)
+    {
+        if (!string.IsNullOrEmpty(button.Url))
+            return new { url = button.Url, text = button.Text };
+        if (!string.IsNullOrEmpty(button.PhoneNumber))
+            return new { phoneNumber = button.PhoneNumber, text = button.Text };
+        if (!string.IsNullOrEmpty(button.Code))
+            return new { code = button.Code, text = button.Text };
+        return new { id = button.Id ?? Guid.NewGuid().ToString("N"), text = button.Text };
+    }
+
+    /// <summary>
+    /// Injects WPPConnect's wa-js bundle into the current page. Idempotent —
+    /// safe to call even if already injected (checks window.WPP first).
+    /// </summary>
+    private async Task InjectWppAsync()
+    {
+        if (_page == null || _wppInjected) return;
+
+        string waJsCode;
+        try
+        {
+            // A plain HTTP fetch here is not subject to WhatsApp Web's page
+            // CSP at all — that policy only restricts what the page itself
+            // is allowed to load. Fetching the bundle out-of-band and
+            // handing Playwright the raw text (via AddInitScriptAsync) is
+            // what actually gets it past the block; see the ordering/CSP
+            // notes on the call site in InitializeAsync.
+            waJsCode = await s_httpClient.GetStringAsync(Constants.WaJsScriptUrl);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to download wa-js from {Url} — button/list/image sending will not work", Constants.WaJsScriptUrl);
+            return;
+        }
+
+        _logger.LogInformation("Registering wa-js (WPPConnect) init script ({Bytes} bytes) from {Url}", waJsCode.Length, Constants.WaJsScriptUrl);
+        await _page.AddInitScriptAsync(script: waJsCode);
+        _wppInjected = true;
+    }
+
+    /// <summary>
+    /// Diagnostic helper: reports whether wa-js (window.WPP) is present on
+    /// the current page and, if so, its reported version and whether the
+    /// button/list/file-message functions this client relies on exist.
+    /// Useful when troubleshooting environments where the CDN fetch or
+    /// script injection might be blocked (corporate proxies, offline CI,
+    /// etc.) — call this right after <see cref="InitializeAsync"/> to
+    /// confirm wa-js loaded before waiting on QR/authentication.
+    /// </summary>
+    public async Task<WppInjectionStatus> GetWppInjectionStatusAsync()
+    {
+        if (_page == null)
+            return new WppInjectionStatus(false, null, false, false, false);
+
+        var raw = await _page.EvaluateAsync<System.Text.Json.JsonElement>(@"
+            () => ({
+                present: typeof window.WPP !== 'undefined',
+                version: (window.WPP && window.WPP.version) || null,
+                hasSendListMessage: !!(window.WPP && window.WPP.chat && window.WPP.chat.sendListMessage),
+                hasSendTextMessage: !!(window.WPP && window.WPP.chat && window.WPP.chat.sendTextMessage),
+                hasSendFileMessage: !!(window.WPP && window.WPP.chat && window.WPP.chat.sendFileMessage)
+            })
+        ");
+
+        return new WppInjectionStatus(
+            Present: raw.GetProperty("present").GetBoolean(),
+            Version: raw.GetProperty("version").ValueKind == System.Text.Json.JsonValueKind.String
+                ? raw.GetProperty("version").GetString()
+                : null,
+            HasSendListMessage: raw.GetProperty("hasSendListMessage").GetBoolean(),
+            HasSendTextMessage: raw.GetProperty("hasSendTextMessage").GetBoolean(),
+            HasSendFileMessage: raw.GetProperty("hasSendFileMessage").GetBoolean());
+    }
+
+    /// <summary>
+    /// Waits until wa-js has finished attaching to WhatsApp Web's internal
+    /// store (window.WPP.isFullReady). Required before calling any
+    /// WPP.chat.* function — calling too early throws inside the page.
+    /// </summary>
+    private async Task WaitForWppReadyAsync(int timeoutMs = 30000)
+    {
+        if (_page == null) return;
+
+        await _page.WaitForFunctionAsync(
+            "() => window.WPP && window.WPP.isFullReady === true",
+            new PageWaitForFunctionOptions { Timeout = timeoutMs });
     }
 
     /// <summary>
@@ -573,3 +936,20 @@ public class WhatsAppClient : IDisposable
 
     #endregion
 }
+
+/// <summary>
+/// Result of <see cref="WhatsAppClient.GetWppInjectionStatusAsync"/> — reports
+/// whether wa-js successfully loaded and which of the APIs this client
+/// depends on (button/list/file messages) are actually present.
+/// </summary>
+/// <param name="Present">Whether window.WPP exists on the page at all.</param>
+/// <param name="Version">wa-js's reported version string, if present.</param>
+/// <param name="HasSendListMessage">Whether WPP.chat.sendListMessage exists.</param>
+/// <param name="HasSendTextMessage">Whether WPP.chat.sendTextMessage exists.</param>
+/// <param name="HasSendFileMessage">Whether WPP.chat.sendFileMessage exists.</param>
+public record WppInjectionStatus(
+    bool Present,
+    string? Version,
+    bool HasSendListMessage,
+    bool HasSendTextMessage,
+    bool HasSendFileMessage);
